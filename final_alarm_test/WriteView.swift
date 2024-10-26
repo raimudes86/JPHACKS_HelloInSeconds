@@ -10,16 +10,16 @@ struct WriteView: View {
     @State private var message: String = "今日も一日頑張ろう"
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-                    Text("おはよう！")
+                    Text("おはようございます！")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.top, 50)
 
-                    Text("今日の目標や一言")
+                    Text("今日の目標や一言を投稿しよう")
                         .font(.subheadline)
                         .padding(.bottom, 10)
 
-                    TextField("今日も一日頑張ろう", text: $message)
+                    TextField("ここに入力してください", text: $message)
                         .padding()
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(5)
@@ -42,3 +42,5 @@ struct WriteView: View {
                 .padding()
     }
 }
+
+

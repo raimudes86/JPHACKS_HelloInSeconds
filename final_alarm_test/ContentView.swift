@@ -3,7 +3,6 @@ import UserNotifications
 import FirebaseFirestore
 
 struct ContentView: View {
-    @AppStorage("num") private var num: Int = 0
     @State private var alarmTime = Date()
     @State private var isNavigationActive = false
     @State private var postContent: String = "読み込み中..."
@@ -11,10 +10,6 @@ struct ContentView: View {
     var body: some View {
         NavigationView{
             VStack {
-                Text("カウント数: \(num)")
-                    .padding()
-                Text("投稿内容: \(postContent)") // Firestoreから取得した内容を表示
-                    .padding()
                 DatePicker("時間を選択", selection: $alarmTime, displayedComponents: .hourAndMinute)
                     .datePickerStyle(WheelDatePickerStyle())
                     .labelsHidden()

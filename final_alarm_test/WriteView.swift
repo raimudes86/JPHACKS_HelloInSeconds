@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 struct WriteView: View {
     @State private var message: String = "今日も一日頑張ろう"
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var currentDate = Date()
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
                     Text("おはようございます！")
@@ -27,6 +30,9 @@ struct WriteView: View {
 
                     Button(action: {
                         print("投稿ボタンが押されました: \(message)")
+                        Task {
+                            await post(message: message, currentDate: currentDate)
+                        }
                     }) {
                         Text("投稿！")
                             .padding()
@@ -41,6 +47,23 @@ struct WriteView: View {
                 }
                 .padding()
     }
+//    var dateFormatter: DateFormatter {
+//        let formatter = DateFormatter()
+//        formatter.dateFormat = "HH:mm"
+//        return formatter
+//    }
 }
 
-
+func post(message: String, currentDate: Date) async {
+    let db = Firestore.firestore()
+    do {
+        let ref = try await db.collection("posts").addDocument(data: [
+            "content": message,
+            "date": Timestamp(date: currentDate), // Date型をTimestampに変換
+            "userID": "abc"
+        ])
+        print("Document added with ID: \(ref.documentID)")
+    } catch {
+        print("Error adding document: \(error)")
+    }
+}

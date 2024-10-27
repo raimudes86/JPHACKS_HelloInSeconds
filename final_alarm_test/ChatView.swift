@@ -67,30 +67,35 @@ class PostModel: ObservableObject {
 struct ChatView: View {
     @EnvironmentObject var tabSelection: TabSelection
     @StateObject private var contents = PostModel() // @StateObjectを使ってPostModelを保持
+    @AppStorage("showChatView") private var showChatView: Bool = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                ForEach(contents.postContents) { post in
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(post.userID)
-                            .font(.headline)
-                            .padding(.bottom, 2)
-                        Text(post.content)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+        if showChatView{
+            ScrollView {
+                VStack(spacing: 20) {
+                    ForEach(contents.postContents) { post in
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(post.userID)
+                                .font(.headline)
+                                .padding(.bottom, 2)
+                            Text(post.content)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color.cyan))
+                        .shadow(radius: 5)
+                        .padding(.horizontal)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.cyan))
-                    .shadow(radius: 5)
-                    .padding(.horizontal)
                 }
+                .padding(.vertical)
             }
-            .padding(.vertical)
-        }
-        .onAppear {
-            contents.fetchPostContents() // ビューが表示されたときにデータを取得
+            .onAppear {
+                contents.fetchPostContents() // ビューが表示されたときにデータを取得
+            }
+        } else {
+            Text("また明日頑張ろう")
         }
     }
 }

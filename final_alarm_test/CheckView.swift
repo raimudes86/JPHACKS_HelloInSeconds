@@ -17,6 +17,7 @@ struct CheckView: View {
     @AppStorage("notificationID1") private var notification1UUIDString: String = ""
     @AppStorage("notificationID2") private var notification2UUIDString: String = ""
     @AppStorage("notificationID3") private var notification3UUIDString: String = ""
+    @AppStorage("showChatView") private var showChatView: Bool = false
     var body: some View {
         VStack {
             Text("\(currentDate, formatter: dateFormatter)")
@@ -101,6 +102,7 @@ struct CheckView: View {
                     notification2UUIDString = ""
                     notification3UUIDString = ""
                     showwritepage = true
+                    showChatView = true
                 } label: {
                     Text("タイムラインへ投稿しよう！")
                         .padding(.horizontal, 70)

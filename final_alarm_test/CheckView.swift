@@ -13,68 +13,113 @@ struct CheckView: View {
     @State private var currentDate = Date()
     @State private var colorIndex: Int = 0
     @State private var showwritepage = false
+    @AppStorage("showStopButton") private var showStopButton: Bool = false
+    @AppStorage("notificationID1") private var notification1UUIDString: String = ""
+    @AppStorage("notificationID2") private var notification2UUIDString: String = ""
+    @AppStorage("notificationID3") private var notification3UUIDString: String = ""
     var body: some View {
         VStack {
             Text("\(currentDate, formatter: dateFormatter)")
-                    .onReceive(timer) { input in
-                      currentDate = input
-                    }
-                    .font(.system(size: 100))
+                .onReceive(timer) { input in
+                    currentDate = input
+                }
+                .font(.system(size: 100))
             
             Spacer() // 空白を追加して見た目を整える
             HStack{
                 VStack{
                     Text("一回目")
-                    Circle()
-                        .fill(getColorleft(for: colorIndex))
-                        .frame(width: 100, height: 100)
-                        .padding()
+                    ZStack {
+                        Circle()
+                            .fill(getColorleft(for: colorIndex))
+                            .frame(width: 100, height: 100)
+                            .padding()
+                        if colorIndex >= 1{
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
                 VStack{
                     Text("二回目")
-                    Circle()
-                        .fill(getColorcenter(for: colorIndex))
-                        .frame(width: 100, height: 100)
-                        .padding()
+                    ZStack {
+                        Circle()
+                            .fill(getColorcenter(for: colorIndex))
+                            .frame(width: 100, height: 100)
+                            .padding()
+                        if colorIndex >= 2{
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
                 VStack{
                     Text("三回目")
-                    Circle()
-                        .fill(getColorright(for: colorIndex))
-                        .frame(width: 100, height: 100)
-                        .padding()
+                    ZStack {
+                        Circle()
+                            .fill(getColorright(for: colorIndex))
+                            .frame(width: 100, height: 100)
+                            .padding()
+                        if colorIndex >= 3{
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
             }
             Spacer()
-            if colorIndex <= 2{
+            if colorIndex <= 2 {
                 Button {
+                    // 止めるボタンが押されたら通知を消す
+                    if colorIndex == 0 {
+                        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+                    } else {
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [notification2UUIDString])
+                    }
                     colorIndex += 1
+                    showStopButton = false
                 } label: {
                     Text("とめる")
-                        .padding(.horizontal,70)
+                        .padding(.horizontal, 70)
                         .padding(.vertical, 40)
                         .background(Color.green)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         .frame(width: 400, height: 200)
                 }
-            }else{
+                .opacity(showStopButton ? 1 : 0) // ボタンは常に存在するが、透明度が0になる→レイアウトが崩れないから採用
+            }
+            
+            if colorIndex >= 3 {
                 Button {
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [notification3UUIDString])
+                    
+                    notification1UUIDString = ""
+                    notification2UUIDString = ""
+                    notification3UUIDString = ""
                     showwritepage = true
                 } label: {
-                    Text("タイムラインへ一言投稿！")
-                        .padding(.horizontal,70)
+                    Text("タイムラインへ投稿しよう！")
+                        .padding(.horizontal, 70)
                         .padding(.vertical, 40)
                         .background(Color.red)
                         .foregroundColor(.white)
+                        .cornerRadius(10)
                         .frame(width: 400, height: 200)
                 }
-
+                .opacity(colorIndex >= 3 ? 1 : 0) // ボタンは常に存在し、条件に応じて透明度を調整
             }
-
+            
         }
         .fullScreenCover(isPresented: $showwritepage) {
             WriteView()
+        }
+        .onDisappear(){
+            //戻るボタンが押されたら全ての通知のスケジュールを削除する
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         }
         var dateFormatter: DateFormatter {
             let formatter = DateFormatter()

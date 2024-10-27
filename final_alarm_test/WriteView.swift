@@ -11,47 +11,52 @@ struct WriteView: View {
     @State private var message: String = "今日も一日頑張ろう"
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var currentDate = Date()
+    @State private var showchatView = false
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-                    Text("おはようございます！")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.top, 50)
-
-                    Text("今日の目標や一言を投稿しよう")
-                        .font(.subheadline)
-                        .padding(.bottom, 10)
-
-                    TextField("ここに入力してください", text: $message)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(5)
-                        .padding(.bottom, 20)
-
-                    Button(action: {
-                        print("投稿ボタンが押されました: \(message)")
-                        Task {
-                            await post(message: message, currentDate: currentDate)
-                        }
-                    }) {
-                        Text("投稿！")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .padding(.horizontal, 50)
-                    
-                    Spacer()
-                }
+            Text("おはようございます！")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.top, 50)
+            
+            Text("今日の目標や一言を投稿しよう")
+                .font(.subheadline)
+                .padding(.bottom, 10)
+            
+            TextField("ここに入力してください", text: $message)
                 .padding()
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(5)
+                .padding(.bottom, 20)
+            
+            Button(action: {
+                print("投稿ボタンが押されました: \(message)")
+                Task {
+                    await post(message: message, currentDate: currentDate)
+                }
+                showchatView = true
+            }) {
+                Text("投稿！")
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.red.opacity(0.8))
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .padding(.horizontal, 50)
+            
+            Spacer()
+        }
+        .padding()
+        .fullScreenCover(isPresented: $showchatView){
+            ChatView()
+        }
     }
-//    var dateFormatter: DateFormatter {
-//        let formatter = DateFormatter()
-//        formatter.dateFormat = "HH:mm"
-//        return formatter
-//    }
+    //    var dateFormatter: DateFormatter {
+    //        let formatter = DateFormatter()
+    //        formatter.dateFormat = "HH:mm"
+    //        return formatter
+    //    }
 }
 
 func post(message: String, currentDate: Date) async {

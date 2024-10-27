@@ -8,6 +8,8 @@
 import SwiftUI
 import FirebaseFirestore
 struct WriteView: View {
+    @Binding var showwritepage: Bool
+    @EnvironmentObject var tabSelection: TabSelection // 環境オブジェクトを取得
     @State private var message: String = "今日も一日頑張ろう"
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var currentDate = Date()
@@ -34,7 +36,8 @@ struct WriteView: View {
                 Task {
                     await post(message: message, currentDate: currentDate)
                 }
-                showchatView = true
+                tabSelection.selectedTab = 1
+                showwritepage = false
             }) {
                 Text("投稿！")
                     .padding()
@@ -48,15 +51,7 @@ struct WriteView: View {
             Spacer()
         }
         .padding()
-        .fullScreenCover(isPresented: $showchatView){
-            ChatView()
-        }
     }
-    //    var dateFormatter: DateFormatter {
-    //        let formatter = DateFormatter()
-    //        formatter.dateFormat = "HH:mm"
-    //        return formatter
-    //    }
 }
 
 func post(message: String, currentDate: Date) async {

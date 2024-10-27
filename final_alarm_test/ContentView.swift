@@ -3,6 +3,7 @@ import UserNotifications
 import FirebaseFirestore
 
 struct ContentView: View {
+    @EnvironmentObject var tabSelection: TabSelection
     @State private var alarmTime = Date()
     @State private var isNavigationActive = false
     @State private var postContent: String = "読み込み中..."

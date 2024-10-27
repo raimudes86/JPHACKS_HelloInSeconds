@@ -12,6 +12,7 @@ struct ContentView: View {
     @AppStorage("notificationID2") private var notification2UUIDString: String = ""
     @AppStorage("notificationID3") private var notification3UUIDString: String = ""
     @AppStorage("myUID") private var myUID: String = "" // ローカルにユーザーIDを保存するためのAppStorage
+    @AppStorage("myName") private var myName: String = "名無し" // ローカルにユーザーIDを保存するためのAppStorage
     private let db = Firestore.firestore()
     var body: some View {
         NavigationView{
@@ -38,7 +39,7 @@ struct ContentView: View {
                 }
                 .onAppear {
                     // ユーザーIDを生成してローカルストレージに保存
-                    generateAndStoreUserID()
+                    generateAndStoreUserID(myName: myName)
                 }
             }
             .navigationTitle("アラーム設定")
@@ -49,27 +50,45 @@ struct ContentView: View {
     }
     
     //自分のUIDの生成
-    func generateAndStoreUserID() {
-        if myUID.isEmpty {
-            // Firestoreで新しいドキュメントを作成し、そのIDを取得
-            let userRef = db.collection("Users").document() // 自動生成のドキュメントIDを使う
-            let newUID = userRef.documentID // 自動生成されたドキュメントIDをUIDとして使用
-            
-            // Firestoreにユーザーデータを保存
-            let userData = ["created_at": Timestamp(date: Date())] // 必要に応じて他のデータも追加
-            userRef.setData([:]) { error in
-                if let error = error {
-                    print("ユーザーIDの保存に失敗しました: \(error.localizedDescription)")
-                } else {
-                    print("ユーザーIDをFirestoreに保存しました: \(newUID)")
-                    // ローカルストレージに保存（次回起動時にも利用できるように）
-                    myUID = newUID
+    func generateAndStoreUserID(myName: String) {
+            if myUID.isEmpty {
+                // Firestoreで新しいドキュメントを作成し、そのIDを取得
+                let userRef = db.collection("Users").document() // 自動生成のドキュメントIDを使う
+                let newUID = userRef.documentID // 自動生成されたドキュメントIDをUIDとして使用
+                let userData: [String: Any] = [
+                    "created_at": Timestamp(date: Date()), // 作成日時
+                    "name": myName // ユーザーの名前を追加
+                ]
+                // Firestoreにユーザーデータを保存
+                userRef.setData(userData) { error in
+                    if let error = error {
+                        print("ユーザーIDの保存に失敗しました: \(error.localizedDescription)")
+                    } else {
+                        print("ユーザーIDをFirestoreに保存しました: \(newUID)")
+                        
+                        // フォローサブコレクションの生成
+                        createFollowingSubcollection(for: newUID)
+                        
+                        // ローカルストレージに保存（次回起動時にも利用できるように）
+                        myUID = newUID
+                    }
                 }
-            }
-        } else {
+            } else {
                 // すでにユーザーIDが存在する場合は何もしない
                 print("既存のユーザーIDを使用しています: \(myUID)")
             }
+        }
+    
+    // フォローリストサブコレクションを生成
+    func createFollowingSubcollection(for uid: String) {
+        let followingRef = db.collection("Users").document(uid).collection("following")
+        followingRef.document("init").setData([:]) { error in
+            if let error = error {
+                print("フォローサブコレクションの初期化に失敗しました: \(error.localizedDescription)")
+            } else {
+                print("フォローサブコレクションを初期化しました")
+            }
+        }
     }
     
     // ローカル通知をスケジュールする関数

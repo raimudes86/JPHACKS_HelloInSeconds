@@ -11,7 +11,8 @@ struct ContentView: View {
     @AppStorage("notificationID1") private var notification1UUIDString: String = ""
     @AppStorage("notificationID2") private var notification2UUIDString: String = ""
     @AppStorage("notificationID3") private var notification3UUIDString: String = ""
-    
+    @AppStorage("myUID") private var myUID: String = "" // ローカルにユーザーIDを保存するためのAppStorage
+    private let db = Firestore.firestore()
     var body: some View {
         NavigationView{
             VStack {
@@ -35,6 +36,10 @@ struct ContentView: View {
                 NavigationLink(destination: CheckView(), isActive: $isNavigationActive){
                     EmptyView()
                 }
+                .onAppear {
+                    // ユーザーIDを生成してローカルストレージに保存
+                    generateAndStoreUserID()
+                }
             }
             .navigationTitle("アラーム設定")
             .onAppear {
@@ -42,7 +47,31 @@ struct ContentView: View {
             }
         }
     }
-
+    
+    //自分のUIDの生成
+    func generateAndStoreUserID() {
+        if myUID.isEmpty {
+            // Firestoreで新しいドキュメントを作成し、そのIDを取得
+            let userRef = db.collection("Users").document() // 自動生成のドキュメントIDを使う
+            let newUID = userRef.documentID // 自動生成されたドキュメントIDをUIDとして使用
+            
+            // Firestoreにユーザーデータを保存
+            let userData = ["created_at": Timestamp(date: Date())] // 必要に応じて他のデータも追加
+            userRef.setData([:]) { error in
+                if let error = error {
+                    print("ユーザーIDの保存に失敗しました: \(error.localizedDescription)")
+                } else {
+                    print("ユーザーIDをFirestoreに保存しました: \(newUID)")
+                    // ローカルストレージに保存（次回起動時にも利用できるように）
+                    myUID = newUID
+                }
+            }
+        } else {
+                // すでにユーザーIDが存在する場合は何もしない
+                print("既存のユーザーIDを使用しています: \(myUID)")
+            }
+    }
+    
     // ローカル通知をスケジュールする関数
     func scheduleLocalNotification(for date: Date) {
         let content = UNMutableNotificationContent()
@@ -53,10 +82,10 @@ struct ContentView: View {
         let notificationSounds = ["alarm_app.mp3","alarm_ap.mp3","alarm_ap.mp3"]
         var UUIDlist : [String] = []
         let calendar = Calendar.current
-//        let dateComponents = calendar.dateComponents([.hour, .minute], from: date)
-
+        //        let dateComponents = calendar.dateComponents([.hour, .minute], from: date)
+        
         //テストのために時間指定じゃなくて強制的に5秒後に通知が来るようにしています
-//        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        //        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         
         for i in 0...2{
             content.title = notificationTitles[i]
@@ -67,7 +96,7 @@ struct ContentView: View {
             let newUUID = UUID().uuidString
             UUIDlist.append(newUUID)
             let request = UNNotificationRequest(identifier: newUUID, content: content, trigger: trigger)
-
+            
             UNUserNotificationCenter.current().add(request) { error in
                 if error != nil {
                     print("通知のスケジュールに失敗しました: \(error?.localizedDescription ?? "")")
@@ -83,7 +112,7 @@ struct ContentView: View {
         
         
     }
-
+    
     // Firestoreからデータを取得してpostContentに保存する関数
     func fetchPostContent() {
         let db = Firestore.firestore()
@@ -101,5 +130,5 @@ struct ContentView: View {
             }
         }
     }
-
+    
 }

@@ -14,6 +14,8 @@ struct WriteView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var currentDate = Date()
     @State private var showchatView = false
+    @AppStorage("myUID") private var myUID: String = ""
+    @AppStorage("myName") private var myName: String = "名無し"
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("おはようございます！")
@@ -34,7 +36,7 @@ struct WriteView: View {
             Button(action: {
                 print("投稿ボタンが押されました: \(message)")
                 Task {
-                    await post(message: message, currentDate: currentDate)
+                    await post(message: message, currentDate: currentDate, myUID: myUID, myName: myName)
                 }
                 tabSelection.selectedTab = 1
                 showwritepage = false
@@ -54,13 +56,14 @@ struct WriteView: View {
     }
 }
 
-func post(message: String, currentDate: Date) async {
+func post(message: String, currentDate: Date, myUID: String, myName: String) async {
     let db = Firestore.firestore()
     do {
         let ref = try await db.collection("posts").addDocument(data: [
             "content": message,
             "date": Timestamp(date: currentDate), // Date型をTimestampに変換
-            "userID": "abc"
+            "userID": myUID,
+            "name": myName
         ])
         print("Document added with ID: \(ref.documentID)")
     } catch {

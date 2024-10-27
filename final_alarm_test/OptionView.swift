@@ -14,7 +14,6 @@ struct OptionView: View {
     @State private var targetUID: String = "" // フォローしたいユーザーのUIDを保存するための状態変数
     let db = Firestore.firestore()
     @State private var showAlert: Bool = false // コピー成功を知らせるアラート
-    @State private var tmpName: String = ""
     
     var body: some View {
         // ユーザーIDを表示するテキストとボタンを重ねる
@@ -47,9 +46,12 @@ struct OptionView: View {
                 }
                 .padding(.trailing, 10) // ボタンの右側のマージン
             }
-            Text("フォローするユーザーのUIDを入力")
-                .font(.headline)
-                .padding(.top, 50)
+
+            HStack {
+                Text("フォローするユーザーのUIDを入力")
+                    .font(.headline)
+                    .padding(.top, 50)
+            }
             TextField("ユーザーUIDをここに入力", text: $targetUID)
                 .padding()
                 .background(Color.gray.opacity(0.2))
@@ -70,17 +72,19 @@ struct OptionView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal, 50)
-            Text("ユーザー名を入力")
-                .font(.headline)
-                .padding(.top, 50)
-            TextField("ユーザー名をここに入力", text: $tmpName)
+
+            HStack {
+                Text("ユーザー名を入力")
+                    .font(.headline)
+                    .padding(.top, 50)
+            }
+            TextField("ユーザー名をここに入力", text: $myName)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(5)
                 .padding(.bottom, 20)
             Button(action: {
-                myName = tmpName
-                changeName(name: tmpName)
+                changeName(name: myName)
             }) {
                 Text("変更する")
                     .padding()
@@ -90,6 +94,8 @@ struct OptionView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal, 50)
+
+            // showList
             Spacer()
         }
         .alert(isPresented: $showAlert) {

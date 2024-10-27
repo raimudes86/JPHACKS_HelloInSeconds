@@ -64,6 +64,7 @@ class PostModel: ObservableObject {
 }
 
 struct ChatView: View {
+    @EnvironmentObject var tabSelection: TabSelection
     @StateObject private var contents = PostModel() // @StateObjectを使ってPostModelを保持
 
     var body: some View {

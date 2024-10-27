@@ -115,7 +115,7 @@ struct CheckView: View {
             
         }
         .fullScreenCover(isPresented: $showwritepage) {
-            WriteView()
+            WriteView(showwritepage: $showwritepage)
         }
         .onDisappear(){
             //戻るボタンが押されたら全ての通知のスケジュールを削除する

@@ -25,7 +25,7 @@ class PostModel: ObservableObject {
     private var fetchedDocumentIDs: Set<String> = [] // 取得済みドキュメントIDを保持するセット
 
     func fetchPostContents() {
-        listenerRegistration = db.collection("posts").whereField("userID", in:followList).addSnapshotListener { [weak self] (snapshot, error) in
+        listenerRegistration = db.collection("posts").addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
 
             if let error = error {

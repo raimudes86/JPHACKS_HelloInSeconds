@@ -1,4 +1,4 @@
-# サンプル（プロダクト名）
+# 秒でおはよう
 
 [![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2024/07/JPHACKS2024_ogp.jpg)](https://www.youtube.com/watch?v=DZXUkEj-CSI)
 
@@ -24,20 +24,8 @@
 
 ## 開発技術
 Swift, Firebase
-### 活用した技術
-#### API・データ
-* 
-* 
-
-#### フレームワーク・ライブラリ・モジュール
-* 
-* 
 
 #### デバイス
 * iphone
 * 
 
-### 独自技術
-#### ハッカソンで開発した独自機能・技術
-* 独自で開発したものの内容をこちらに記載してください
-* 特に力を入れた部分をファイルリンク、またはcommit_idを記載してください。
